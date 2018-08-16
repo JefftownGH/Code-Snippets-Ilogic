@@ -1,0 +1,79 @@
+﻿Dim oDoc As DrawingDocument
+oDoc = ThisApplication.ActiveDocument
+Dim oSheet As Sheet
+oSheet = oDoc.ActiveSheet
+Dim oDrawingDimension As DrawingDimension
+Dim oDrawingDimensions As DrawingDimensions
+Dim oDimsToBeArranged As ObjectCollection
+Dim iLinearDimCount As Integer
+Dim iAngularDimCount As Integer
+Dim iOtherDimCount As Integer
+iLinearDimCount = 0
+iAngularDimCount = 0
+iOtherDimCount = 0
+' Iterate over all dimensions in the drawing and
+' center them if they are linear or angular.
+' Add them to the ObjectCollection to be arranged
+oDrawingDimensions = oSheet.DrawingDimensions
+oDimsToBeArranged = ThisApplication.TransientObjects.CreateObjectCollection
+oDimsToBeArranged.Clear()
+Dim oAttributeSets As AttributeSets
+Dim oAttributeSet As AttributeSet
+Dim oAttribute As Inventor.Attribute
+'Dimensions with Arrange=False in CustomAttributeSet will not be arranged
+For Each oDrawingDimension In oDrawingDimensions
+'Get the AttributeSets
+oAttributeSets=oDrawingDimension.AttributeSets
+If oAttributeSets.NameIsUsed("CustomAttributeSet") Then 'if it has CustomAttributes
+oAttributeSet = oAttributeSets.Item("CustomAttributeSet")
+For Each oAttribute In oAttributeSet
+If oAttribute.Name()="Arrange" Then
+If oAttribute.Value = "False" Then
+'Do nothing
+Else
+Select Case oDrawingDimension.Type
+Case 117474560 ' kLinearGeneralDimensionObject
+oDimsToBeArranged.Add(oDrawingDimension)
+iLinearDimCount = iLinearDimCount+1
+Case 117474816 'kAngularGeneralDimensionObject
+ oDimsToBeArranged.Add(oDrawingDimension)
+ iAngularDimCount = iAngularDimCount+1
+Case Else
+iOtherDimCount = iOtherDimCount +1
+End Select
+End If
+Else 'If the dimensions has a CustomAttributeSet but no Arrange attribute it must be arranged as default
+Select Case oDrawingDimension.Type
+Case 117474560 ' kLinearGeneralDimensionObject
+oDimsToBeArranged.Add(oDrawingDimension)
+iLinearDimCount = iLinearDimCount+1
+Case 117474816 'kAngularGeneralDimensionObject
+' oDimsToBeArranged.Add(oDrawingDimension)
+' iAngularDimCount = iAngularDimCount+1
+Case Else
+iOtherDimCount = iOtherDimCount +1
+End Select
+End If
+Next
+Else 'If the dimensions has a CustomAttributeSet it must be arranged as default
+Select Case oDrawingDimension.Type
+Case 117474560 ' kLinearGeneralDimensionObject
+oDimsToBeArranged.Add(oDrawingDimension)
+iLinearDimCount = iLinearDimCount+1
+Case 117474816 'kAngularGeneralDimensionObject
+' oDimsToBeArranged.Add(oDrawingDimension)
+' iAngularDimCount = iAngularDimCount+1
+Case Else
+iOtherDimCount = iOtherDimCount +1
+End Select
+End If
+Next
+Trace.Writeline("Linear dimensions = "& iLinearDimCount)
+Trace.Writeline("Angular dimensions = "& iAngularDimCount)
+Trace.Writeline("Other dimensions = "& iOtherDimCount)
+oDrawingDimensions.Arrange(oDimsToBeArranged)
+oDrawingDimension.CenterText
+
+
+
+

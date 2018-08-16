@@ -1,0 +1,16 @@
+﻿' <FireOthersImmediately>False</FireOthersImmediately>
+
+  
+	
+	iLogicVb.UpdateWhenDone = True
+
+
+
+
+
+iLogicVb.UpdateWhenDone = True
+
+
+ThisDoc.Document.SaveAs(ThisDoc.Path & "\" & iProperties.Value("Project", "Project") &"_"& ThisDoc.FileName(False) & ".jpg",True)
+iLogicVb.UpdateWhenDone = True
+

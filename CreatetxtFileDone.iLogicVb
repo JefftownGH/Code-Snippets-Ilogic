@@ -1,0 +1,4 @@
+﻿'____Create and write to a text file_________________
+oWrite = System.IO.File.CreateText("C:\Configurator\IlogicState.txt")
+oWrite.WriteLine("done")
+oWrite.Close()

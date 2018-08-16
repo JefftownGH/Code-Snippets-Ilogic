@@ -1,0 +1,13 @@
+﻿strFolder = "C:\Configurator\Output\" & iProperties.Value("Project", "Project")  &"\"& iProperties.Value("Project", "Project") &"_"& ThisDoc.FileName(False)  
+
+
+
+    ' Get the active view. 
+    Dim oView As View 
+    oView = ThisApplication.ActiveView
+ 
+    ' Save the view as a jpg file.  
+    Call oView.SaveAsBitmap(strFolder & ".jpg", 1600, 1200) 
+
+Threading.Thread.Sleep(3000)
+

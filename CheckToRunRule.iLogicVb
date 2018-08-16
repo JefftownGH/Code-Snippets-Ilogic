@@ -1,0 +1,20 @@
+﻿oRead = System.IO.File.OpenText("C:\Configurator\IlogicState.txt")
+EntireFile = oRead.ReadToEnd()
+oRead.Close()
+While EntireFile.Contains("busy")
+	Threading.Thread.Sleep(5000)
+	oRead = System.IO.File.OpenText("C:\Configurator\IlogicState.txt")
+	EntireFile = oRead.ReadToEnd()
+	oRead.Close()
+	If EntireFile.Contains("done") Then
+		Exit While
+		Else
+				Continue While
+End If
+End While
+	iLogicVb.RunExternalRule("CreatetxtFileBusy")
+		iLogicVb.RunExternalRule("ExportDXF")
+	iLogicVb.RunExternalRule("ExportPDF")
+	Threading.Thread.Sleep(5000)
+	iLogicVb.RunExternalRule("CreatetxtFileDone")
+	

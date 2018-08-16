@@ -1,0 +1,70 @@
+﻿Dim strFolderProcessing As String = "C:\Configurator\Processing\"
+
+
+Dim strFile As String = Dir(strFolderProcessing & "\*.csv*", vbNormal)    ' Any File
+Dim strlatestFile As String = Nothing
+Dim dtLast As Date
+Dim strNewestFile As String = Nothing
+
+'loop through Incomming files to find latest modified date
+Do While strFile <> ""
+	If FileDateTime(strFolderProcessing & strFile) > dtLast Then
+		dtLast = FileDateTime(strFolderProcessing & strFile)
+		strNewestFile = strFile
+		strlatestFile = strFolderProcessing & strFile
+	End If
+	strFile = Dir()
+Loop
+If strlatestFile = "" Then
+	Return
+End If
+
+Dim ReadCSV As New System.IO.StreamReader(strlatestFile)
+Dim WordSets As New ArrayList()
+
+Do While ReadCSV.Peek <> - 1
+	WordSets.Add(ReadCSV.ReadLine.Split(","))
+Loop
+
+iProperties.Value("Summary", "Title") = WordSets.Item(2)(1)
+iProperties.Value("Project", "Project") = WordSets.Item(1)(1)
+
+iLogicVb.UpdateWhenDone = True
+ 
+ 
+ '' Get the PDF translator Add-In.
+    Dim PDFAddIn As TranslatorAddIn
+    PDFAddIn = ThisApplication.ApplicationAddIns.ItemById("{0AC6FD96-2F4D-42CE-8BE0-8AEA580399E4}")
+
+    '' Set a reference to the active document (the document to be published).
+    Dim oDocument As Document
+    oDocument = ThisApplication.ActiveDocument
+
+    Dim oContext As TranslationContext
+    oContext = ThisApplication.TransientObjects.CreateTranslationContext
+    oContext.Type = kFileBrowseIOMechanism
+
+    '' Create a NameValueMap object
+    Dim oOptions As NameValueMap
+    oOptions = ThisApplication.TransientObjects.CreateNameValueMap
+
+    '' Create a DataMedium object
+    Dim oDataMedium As DataMedium
+    oDataMedium = ThisApplication.TransientObjects.CreateDataMedium
+
+    '' Check whether the translator has 'SaveCopyAs' options
+    If PDFAddIn.HasSaveCopyAsOptions(oDocument, oContext, oOptions) Then
+
+       ' ' Options for drawings...
+        oOptions.Value("All_Color_AS_Black") = 0
+        oOptions.Value("Remove_Line_Weights") = 0
+        oOptions.Value("Vector_Resolution") = 300
+        oOptions.Value("Sheet_Range") = Inventor.PrintRangeEnum.kPrintAllSheets
+    End If
+
+    '' Set the destination file name
+    oDataMedium.FileName = "C:\Configurator\Output\" & iProperties.Value("Project", "Project")  & "\" & iProperties.Value("Project", "Project") &"_"& ThisDoc.FileName(False) & ".pdf"
+ 
+
+    '' Publish document.
+    Call PDFAddIn.SaveCopyAs(oDocument, oContext, oOptions, oDataMedium) 

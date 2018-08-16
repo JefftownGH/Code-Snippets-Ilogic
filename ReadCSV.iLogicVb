@@ -1,0 +1,32 @@
+﻿Dim strFolderProcessing As String = "C:\Configurator\Processing\"
+
+
+Dim strFile As String = Dir(strFolderProcessing & "\*.csv*", vbNormal)    ' Any File
+Dim strlatestFile As String = Nothing
+Dim dtLast As Date
+Dim strNewestFile As String = Nothing
+
+'loop through Incomming files to find latest modified date
+Do While strFile <> ""
+	If FileDateTime(strFolderProcessing & strFile) > dtLast Then
+		dtLast = FileDateTime(strFolderProcessing & strFile)
+		strNewestFile = strFile
+		strlatestFile = strFolderProcessing & strFile
+	End If
+	strFile = Dir()
+Loop
+If strlatestFile = "" Then
+	Return
+End If
+
+Dim ReadCSV As New System.IO.StreamReader(strlatestFile)
+Dim WordSets As New ArrayList()
+
+Do While ReadCSV.Peek <> - 1
+	WordSets.Add(ReadCSV.ReadLine.Split(","))
+Loop
+
+iProperties.Value("Summary", "Title") = WordSets.Item(3)(1)
+iProperties.Value("Project", "Project") = WordSets.Item(1)(1)
+
+iLogicVb.UpdateWhenDone = True
